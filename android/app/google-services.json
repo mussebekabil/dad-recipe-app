@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "84458605564",
+    "project_id": "dad-recipe-app",
+    "storage_bucket": "dad-recipe-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:84458605564:android:c96c917e14afe519660079",
+        "android_client_info": {
+          "package_name": "com.example.dad_recipe_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "84458605564-e5bb7gs4ppvao2k2nt2ptes61luenej9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCis06rWJv-ze5s9vUTMZaK-PTyKxyra9E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "84458605564-e5bb7gs4ppvao2k2nt2ptes61luenej9.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "84458605564-krk0ttn2medqabfksetr5e015t9b049p.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.dadRecipeApp"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
