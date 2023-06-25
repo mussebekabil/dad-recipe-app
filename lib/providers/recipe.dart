@@ -10,38 +10,20 @@ final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 class RecipeNotifier extends StateNotifier<List<Recipe>> {
   RecipeNotifier() : super([]);
 
-  // {
-  //   _fetchRecipes();
-  // }
-
-  // void _fetchRecipes() async {
-  //   String categoryId = await pickRandomCategory();
-  //   //await ref.watch(c.notifier).pickRandomCategory();
-  //   // if (category != null) {
-  //   print("in fetch recipe");
-  //   //print(category.id);
-  //   final snapshot = await _firestore
-  //       .collection('category')
-  //       .doc(categoryId)
-  //       .collection('recipes')
-  //       .get();
-  //   final recipes = snapshot.docs.map((doc) {
-  //     return Recipe.fromFirestore(doc.data(), doc.id);
-  //   }).toList();
-
-  //   state = recipes;
-  //   // }
-  // }
-
   void setRecipes(List<Recipe> recipes) {
     state = recipes;
   }
 
-  void addRecipe(String name, String ingredients, String steps) async {
-    final newRecipe = Recipe('', name, ingredients, steps).toFirestore();
+  void addRecipe(
+      String ctgId, String name, String ingredients, String steps) async {
+    final newRecipe = Recipe('', name, ingredients, steps, ctgId).toFirestore();
 
-    final noteRef = await _firestore.collection('recipe').add(newRecipe);
-    final recipe = Recipe.fromFirestore(newRecipe, noteRef.id);
+    final noteRef = await _firestore
+        .collection('category')
+        .doc(ctgId)
+        .collection('recipes')
+        .add(newRecipe);
+    final recipe = Recipe.fromFirestore(newRecipe, noteRef.id, ctgId);
 
     state = [...state, recipe];
   }
@@ -55,39 +37,43 @@ class RecipeNotifier extends StateNotifier<List<Recipe>> {
 final recipesProvider = StateNotifierProvider<RecipeNotifier, List<Recipe>>(
     (ref) => RecipeNotifier());
 
-final recipeFutureProvider = FutureProvider<List<Recipe>>((ref) async {
-  String categoryId = await getSelectedCategoryId(); //pickRandomCategory();
-  Category ctg = await ref.watch(categoryFutureProvider.future);
-  //await ref.watch(c.notifier).pickRandomCategory();
-  // if (category != null) {
-  print("in fetch recipe $categoryId and ${ctg.id}");
-  //print(category.id);
-
+Future<List<Recipe>> fetchRecipes(String categoryId) async {
   final snapshot = await _firestore
       .collection('category')
-      .doc(ctg.id)
+      .doc(categoryId)
       .collection('recipes')
       .get();
-  final recipes = snapshot.docs.map((doc) {
-    return Recipe.fromFirestore(doc.data(), doc.id);
+  return snapshot.docs.map((doc) {
+    return Recipe.fromFirestore(doc.data(), doc.id, categoryId);
   }).toList();
+}
 
-  ref.watch(recipesProvider.notifier).setRecipes(recipes);
-  print(recipes.length);
+final recipesFutureProvider = FutureProvider<List<Recipe>>((ref) async {
+  Category? ctg = await ref.watch(categoryFutureProvider.future);
+  List<Recipe> recipes = [];
+
+  if (ctg == null) {
+    final categories = await fetchCategories();
+    for (var ctg in categories) {
+      final recipesForCtg = await fetchRecipes(ctg.id);
+      ref.watch(recipesProvider.notifier).setRecipes(recipesForCtg);
+      recipes = [
+        ...recipes,
+        ...recipesForCtg,
+      ];
+    }
+  } else {
+    final recipesForCtg = await fetchRecipes(ctg.id);
+
+    ref.watch(recipesProvider.notifier).setRecipes(recipesForCtg);
+    recipes = [...recipesForCtg];
+  }
   return recipes;
+});
 
-  //  ctg.when(data: ((data) async {
-  //   final snapshot = await _firestore
-  //       .collection('category')
-  //       .doc(data.id)
-  //       .collection('recipes')
-  //       .get();
-  //   final recipes = snapshot.docs.map((doc) {
-  //     return Recipe.fromFirestore(doc.data(), doc.id);
-  //   }).toList();
+final featuredRecipeFutureProvider = FutureProvider<Recipe>((ref) async {
+  Category featuredCtg = await pickRandomCategory();
+  final recipes = await fetchRecipes(featuredCtg.id);
 
-  //   ref.watch(recipesProvider.notifier).setRecepies(recipes);
-  //   print(recipes.length);
-  //   //return recipes;
-  // }));
+  return (recipes..shuffle()).first;
 });

@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../providers/category.dart';
 import '../providers/navigation.dart';
-import 'recipes_list.dart';
 
 class CategoryListScreen extends ConsumerWidget {
   const CategoryListScreen({super.key});
@@ -13,8 +12,6 @@ class CategoryListScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     AsyncValue<List<Category>> futureCategories =
         ref.watch(categoriesFutureProvider);
-    // final categories = ref.watch(categoryFutureProvider);
-    // print(categories.length);
 
     return futureCategories.when(
       loading: () => const CircularProgressIndicator(),
@@ -49,31 +46,5 @@ class CategoryListScreen extends ConsumerWidget {
         ));
       },
     );
-    // return futureCategories.isEmpty
-    //     ? const Text("No category yet")
-    //     : Expanded(
-    //         child: GridView.builder(
-    //         itemCount: categories.length,
-    //         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-    //             mainAxisSpacing: 10,
-    //             crossAxisSpacing: 10,
-    //             crossAxisCount: 2,
-    //             childAspectRatio: 1.2),
-    //         itemBuilder: (context, index) {
-    //           final category = categories[index];
-    //           return Card(
-    //               child: InkWell(
-    //             onTap: () => ref
-    //                 .read(selectedIndexProvider.notifier)
-    //                 .setSelectedIndex(3),
-    //             child: Container(
-    //               padding: const EdgeInsets.all(8),
-    //               color: Colors.teal[100],
-    //               child: Column(
-    //                   children: [const Placeholder(), Text(category.name)]),
-    //             ),
-    //           ));
-    //         },
-    //       ));
   }
 }
