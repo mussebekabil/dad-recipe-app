@@ -4,47 +4,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/category.dart';
 
-// class CategoryNotifier extends StateNotifier<List<Category>> {
-//   CategoryNotifier() : super([]) {
-//     // _fetchCategories();
-//   }
-
-//   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-
-//   void _fetchCategories() async {
-//     print("fetch cagegory colled");
-//     final snapshot = await _firestore.collection('category').get();
-//     final categories = snapshot.docs.map((doc) {
-//       return Category.fromFirestore(doc.data(), doc.id);
-//     }).toList();
-
-//     state = categories;
-//   }
-
-//   Future<Category?> pickRandomCategory() async {
-//     //if (!state.isEmpty) {
-//     //   _fetchCategories();
-//     // } else {
-//     // if (state.isEmpty) {
-//     //   _fetchCategories();
-//     // }
-//     return state.isEmpty ? null : (state.toList()..shuffle()).first;
-//     //}
-//     //return null;
-//   }
-// }
-
-// final categoryProvider =
-//     StateNotifierProvider<CategoryNotifier, List<Category>>(
-//         (ref) => CategoryNotifier());
-
 final categoriesFutureProvider =
     FutureProvider<List<Category>>((ref) async => await fetchCategories());
-
 final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
 Future<List<Category>> fetchCategories() async {
-  print("fetch cagegory colled");
   final snapshot = await _firestore.collection('category').get();
   return snapshot.docs.map((doc) {
     return Category.fromFirestore(doc.data(), doc.id);
@@ -52,9 +16,27 @@ Future<List<Category>> fetchCategories() async {
 }
 
 class CategoryNotifier extends StateNotifier<Category?> {
-  CategoryNotifier() : super(null);
+  CategoryNotifier() : super(null) {
+    _initialize();
+  }
 
-  setSelectedCategory(Category category) {
+  _initialize() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (prefs.containsKey('selectedCtg')) {
+      String ctg = prefs.getString('selectedCtg')!;
+      state = Category.fromJson(ctg);
+    }
+  }
+
+  setSelectedCategory(Category? category) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (category == null) {
+      prefs.clear();
+    } else {
+      String ctgStr = category.toJson();
+      prefs.setString('selectedCtg', ctgStr);
+    }
+
     state = category;
   }
 }
@@ -62,35 +44,10 @@ class CategoryNotifier extends StateNotifier<Category?> {
 final categoryProvider = StateNotifierProvider<CategoryNotifier, Category?>(
     (ref) => CategoryNotifier());
 
-Future<String> pickRandomCategory() async {
-  final prefs = await SharedPreferences.getInstance();
-  if (prefs.containsKey('selectedCtgId')) {
-    return prefs.getString('selectedCtgId')!;
-  }
-
-  final category = await fetchCategories();
-  return (category.toList()..shuffle()).first.id;
+Future<Category> pickRandomCategory() async {
+  final categories = await fetchCategories();
+  return (categories.toList()..shuffle()).first;
 }
 
-Future<String> getSelectedCategoryId() async {
-  final prefs = await SharedPreferences.getInstance();
-  if (prefs.containsKey('selectedCtgId')) {
-    return prefs.getString('selectedCtgId')!;
-  }
-
-  return pickRandomCategory();
-}
-
-final categoryFutureProvider = FutureProvider<Category>((ref) async {
-  final ctg = ref.watch(categoryProvider);
-  if (ctg == null) {
-    final category = await fetchCategories();
-    final randomCtg = (category.toList()..shuffle()).first;
-    ref.watch(categoryProvider.notifier).setSelectedCategory(randomCtg);
-    return randomCtg;
-  }
-
-  return ctg;
-  // final prefs = await SharedPreferences.getInstance();
-  // prefs.setString('selectedCtgId', ctgId);
-});
+final categoryFutureProvider =
+    FutureProvider<Category?>((ref) => ref.watch(categoryProvider));

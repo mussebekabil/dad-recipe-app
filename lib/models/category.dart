@@ -1,5 +1,7 @@
+import 'dart:convert';
+
 class Category {
-  final String id;
+  String id;
   final String name;
 
   Category(this.id, this.name);
@@ -10,5 +12,14 @@ class Category {
 
   Map<String, dynamic> toFirestore() {
     return {'name': name};
+  }
+
+  factory Category.fromJson(String data) {
+    Map<String, dynamic> dataMap = jsonDecode(data) as Map<String, dynamic>;
+    return Category(dataMap['id'], dataMap['name']);
+  }
+
+  String toJson() {
+    return jsonEncode({'id': id, 'name': name});
   }
 }

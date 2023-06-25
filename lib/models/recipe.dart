@@ -3,11 +3,13 @@ class Recipe {
   final String name;
   final String ingredients;
   final String steps;
+  final String categoryId;
 
-  Recipe(this.id, this.name, this.ingredients, this.steps);
+  Recipe(this.id, this.name, this.ingredients, this.steps, this.categoryId);
 
-  factory Recipe.fromFirestore(Map<String, dynamic> data, String id) {
-    return Recipe(id, data['name'], data['ingredients'], data['steps']);
+  factory Recipe.fromFirestore(
+      Map<String, dynamic> data, String id, String ctgId) {
+    return Recipe(id, data['name'], data['ingredients'], data['steps'], ctgId);
   }
 
   Map<String, dynamic> toFirestore() {
