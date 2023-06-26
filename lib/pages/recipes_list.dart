@@ -5,7 +5,9 @@ import 'package:collection/collection.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/category.dart';
 import '../providers/category.dart';
+import '../providers/navigation.dart';
 import '../providers/recipe.dart';
+import '../utils/breakpoints.dart';
 
 class RecipesListScreen extends ConsumerStatefulWidget {
   const RecipesListScreen({super.key});
@@ -59,14 +61,24 @@ class _RecipesListState extends ConsumerState<RecipesListScreen> {
       itemBuilder: (context, index) {
         final recipe = filteredRecipes[index];
         return Card(
-          child: ListTile(
-            title: Text(recipe.name),
-            trailing: IconButton(
-              icon: const Icon(Icons.delete),
-              onPressed: () =>
-                  ref.watch(recipesProvider.notifier).deleteRecipe(recipe.id),
-            ),
-          ),
+          margin: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+          child: Container(
+              padding: const EdgeInsets.all(15),
+              child: ListTile(
+                  title: Text(recipe.name),
+                  onTap: () {
+                    ref
+                        .read(selectedIndexProvider.notifier)
+                        .setSelectedIndex(4);
+                  },
+                  hoverColor: Colors.white,
+                  trailing: Row(mainAxisSize: MainAxisSize.min, children: [
+                    IconButton(
+                        icon: const Icon(Icons.favorite), onPressed: () {}),
+                    IconButton(icon: const Icon(Icons.edit), onPressed: () {}),
+                    IconButton(icon: const Icon(Icons.delete), onPressed: () {})
+                    // ref.watch(recipesProvider.notifier).deleteRecipe(recipe.id),
+                  ]))),
         );
       },
     );
@@ -77,7 +89,8 @@ class _RecipesListState extends ConsumerState<RecipesListScreen> {
     AsyncValue<List<Category>> futureCategories =
         ref.watch(categoriesFutureProvider);
     AsyncValue<List<Recipe>> futureRecipes = ref.watch(recipesFutureProvider);
-
+    final container = MediaQuery.of(context).size;
+    double sideMargin = container.width < Breakpoints.md ? 20 : 100;
     return futureCategories.when(
         loading: () => const CircularProgressIndicator(),
         error: (err, stack) => Text('Error: $err'),
@@ -94,14 +107,22 @@ class _RecipesListState extends ConsumerState<RecipesListScreen> {
                     SizedBox(
                         height: 150,
                         child: Container(
-                            margin: const EdgeInsets.fromLTRB(100, 20, 100, 20),
+                            margin: EdgeInsets.fromLTRB(
+                                sideMargin, 20, sideMargin, 20),
                             child: _categorySelector(categories))),
                     const SizedBox(height: 20),
                     const Divider(),
                     const SizedBox(height: 20),
+                    const Text("List of recipes",
+                        style: TextStyle(
+                            fontSize: 32,
+                            fontWeight: FontWeight.w200,
+                            color: Color.fromRGBO(55, 71, 79, 1))),
+                    const SizedBox(height: 20),
                     Expanded(
                         child: Container(
-                            margin: const EdgeInsets.fromLTRB(100, 20, 100, 20),
+                            margin: EdgeInsets.fromLTRB(
+                                sideMargin, 20, sideMargin, 20),
                             child: _recipesList(recipes))),
                   ],
                 );

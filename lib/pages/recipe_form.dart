@@ -66,65 +66,78 @@ class _RecipeFormState extends ConsumerState<RecipeForm> {
         data: (categories) {
           return Container(
             padding: const EdgeInsets.all(50.0),
-            child: Form(
-              key: _formKey,
-              child: ListView(
-                children: <Widget>[
-                  DropdownButtonFormField<String>(
-                    value: _data.ctgId,
-                    icon: const Icon(Icons.arrow_downward),
-                    elevation: 16,
-                    isExpanded: true,
-                    decoration: const InputDecoration(labelText: 'Category'),
-                    onChanged: (String? value) {
-                      updatedSelectedCtg(value!);
-                    },
-                    items: categories
-                        .map<DropdownMenuItem<String>>((Category ctg) {
-                      return DropdownMenuItem<String>(
-                        value: ctg.id,
-                        child: Text(ctg.name),
-                      );
-                    }).toList(),
-                  ),
-                  TextFormField(
-                      keyboardType: TextInputType.text,
-                      decoration: const InputDecoration(
-                          hintText: 'Best hamburger ever', labelText: 'Name'),
-                      onSaved: (String? value) {
-                        _data.name = value!;
-                      }),
-                  TextFormField(
-                      minLines: 6,
-                      keyboardType: TextInputType.multiline,
-                      maxLines: null,
-                      decoration:
-                          const InputDecoration(labelText: 'Ingredients'),
-                      onSaved: (String? value) {
-                        _data.ingredients = value!;
-                      }),
-                  TextFormField(
-                      minLines: 6,
-                      keyboardType: TextInputType.multiline,
-                      maxLines: null,
-                      decoration: const InputDecoration(labelText: 'Steps'),
-                      onSaved: (String? value) {
-                        _data.steps = value!;
-                      }),
-                  Container(
-                    width: screenSize.width,
-                    margin: const EdgeInsets.only(top: 20.0),
-                    child: ElevatedButton(
-                      onPressed: submit,
-                      child: const Text(
-                        'Create recipe',
-                        style: TextStyle(color: Colors.white),
-                      ),
+            child: Column(children: [
+              const Text("Create recipe",
+                  style: TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.w200,
+                      color: Color.fromRGBO(55, 71, 79, 1))),
+              const SizedBox(height: 20),
+              Expanded(
+                  child: Form(
+                key: _formKey,
+                child: ListView(
+                  children: <Widget>[
+                    DropdownButtonFormField<String>(
+                      value: _data.ctgId,
+                      icon: const Icon(Icons.arrow_downward),
+                      elevation: 16,
+                      isExpanded: true,
+                      decoration: const InputDecoration(labelText: 'Category'),
+                      onChanged: (String? value) {
+                        updatedSelectedCtg(value!);
+                      },
+                      items: categories
+                          .map<DropdownMenuItem<String>>((Category ctg) {
+                        return DropdownMenuItem<String>(
+                          value: ctg.id,
+                          child: Text(ctg.name),
+                        );
+                      }).toList(),
                     ),
-                  )
-                ],
-              ),
-            ),
+                    TextFormField(
+                        keyboardType: TextInputType.text,
+                        decoration: const InputDecoration(
+                            hintText: 'Best hamburger ever', labelText: 'Name'),
+                        onSaved: (String? value) {
+                          _data.name = value!;
+                        }),
+                    TextFormField(
+                        minLines: 6,
+                        keyboardType: TextInputType.multiline,
+                        maxLines: null,
+                        decoration:
+                            const InputDecoration(labelText: 'Ingredients'),
+                        onSaved: (String? value) {
+                          _data.ingredients = value!;
+                        }),
+                    TextFormField(
+                        minLines: 6,
+                        keyboardType: TextInputType.multiline,
+                        maxLines: null,
+                        decoration: const InputDecoration(labelText: 'Steps'),
+                        onSaved: (String? value) {
+                          _data.steps = value!;
+                        }),
+                    Container(
+                      width: screenSize.width,
+                      margin: const EdgeInsets.only(top: 20.0),
+                      child: ElevatedButton(
+                        onPressed: submit,
+                        child: Container(
+                            padding: EdgeInsets.all(10),
+                            child: const Text('Create recipe',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w200,
+                                  color: Colors.white,
+                                  fontSize: 20,
+                                ))),
+                      ),
+                    )
+                  ],
+                ),
+              ))
+            ]),
           );
         });
   }
