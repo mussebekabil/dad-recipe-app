@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'firebase_options.dart';
-import 'recipe_app.dart';
+import 'widgets/recipe_app.dart';
 import 'providers/navigation.dart';
 
 main() async {
@@ -18,7 +18,15 @@ main() async {
       overrides: [
         sharedPreferencesProvider.overrideWithValue(prefs),
       ],
-      child: const MaterialApp(
-        home: RecipeApp(),
+      child: MaterialApp(
+        home: const RecipeApp(),
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.deepOrange),
+          textTheme: const TextTheme(
+              titleMedium: TextStyle(
+                  fontWeight: FontWeight.w200,
+                  fontSize: 20.0,
+                  color: Color.fromRGBO(55, 71, 79, 1))),
+        ),
       )));
 }
