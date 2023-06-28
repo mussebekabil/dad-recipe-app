@@ -15,7 +15,7 @@ class CategoryListScreen extends ConsumerWidget {
     AsyncValue<List<Category>> futureCategories =
         ref.watch(categoriesFutureProvider);
     final container = MediaQuery.of(context).size;
-    double sideMargin = container.width < Breakpoints.md
+    double sideMargin = container.width < Breakpoints.sm
         ? container.width * 0.05
         : container.width * 0.15;
     final axisCount = container.width < Breakpoints.lg ? 1 : 2;
@@ -43,12 +43,13 @@ class CategoryListScreen extends ConsumerWidget {
                   itemBuilder: (context, index) {
                     final category = categories[index];
                     bool evenIndex = index % 2 == 0;
-
+                    double vMargin =
+                        container.width <= Breakpoints.sm ? 10.0 : 25;
                     return Card(
                         margin: container.width < Breakpoints.lg
-                            ? const EdgeInsets.fromLTRB(0, 25, 0, 25)
-                            : EdgeInsets.fromLTRB(
-                                evenIndex ? 0 : 25, 25, evenIndex ? 25 : 0, 25),
+                            ? EdgeInsets.fromLTRB(0, vMargin, 0, vMargin)
+                            : EdgeInsets.fromLTRB(evenIndex ? 0 : 25, vMargin,
+                                evenIndex ? 25 : 0, vMargin),
                         child: InkWell(
                           onTap: () {
                             ref

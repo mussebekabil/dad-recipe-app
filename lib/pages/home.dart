@@ -17,26 +17,30 @@ class HomeScreen extends ConsumerWidget {
     final featuredCtgs = (categories..shuffle()).take(3);
 
     return List<Widget>.from(featuredCtgs.map((category) => SizedBox(
-        width: container.width < Breakpoints.xl ? 500 : 700,
-        child: Card(
-            child: InkWell(
-          onTap: () {
-            ref.read(categoryProvider.notifier).setSelectedCategory(category);
-            ref.read(selectedIndexProvider.notifier).setSelectedIndex(2);
-          },
-          child: ListTile(
-            mouseCursor: MouseCursor.defer,
-            contentPadding: const EdgeInsets.all(0),
-            title: Row(children: [
-              SizedBox(
-                  width: container.width < Breakpoints.xl ? 250 : 300,
-                  height: 245,
-                  child: const Placeholder()),
-              const SizedBox(width: 20),
-              Text(category.name.capitalize())
-            ]),
-          ),
-        )))));
+        width: container.width < Breakpoints.xl ? 450 : 700,
+        child: Container(
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
+            child: Card(
+                child: InkWell(
+              onTap: () {
+                ref
+                    .read(categoryProvider.notifier)
+                    .setSelectedCategory(category);
+                ref.read(selectedIndexProvider.notifier).setSelectedIndex(2);
+              },
+              child: ListTile(
+                mouseCursor: MouseCursor.defer,
+                contentPadding: const EdgeInsets.all(0),
+                title: Row(children: [
+                  SizedBox(
+                      width: container.width < Breakpoints.xl ? 250 : 300,
+                      height: 245,
+                      child: const Placeholder()),
+                  const SizedBox(width: 20),
+                  Text(category.name.capitalize())
+                ]),
+              ),
+            ))))));
   }
 
   @override

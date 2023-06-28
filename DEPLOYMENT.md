@@ -1,5 +1,5 @@
 # Device-Agnostic Design Course Project II - eca927f4-b000-4091-8075-1d76c43f7a04
 
-Write the URL where your application is deployed below.
+Below is the URL where the application is deployed.
 
-TODO: URL
+URL https://mussebekabil.github.io/dad-recipe-app-deploy/

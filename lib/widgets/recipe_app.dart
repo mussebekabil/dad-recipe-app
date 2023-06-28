@@ -135,7 +135,12 @@ class _RecipeAppState extends ConsumerState<RecipeApp> {
           child: Scaffold(
             appBar: AppBar(
               title: !_searchBoolean
-                  ? const Text('DAD Recipe App')
+                  ? const Text('DAD Recipe App',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w200,
+                        color: Colors.white,
+                        fontSize: 24,
+                      ))
                   : _searchTextField(),
               actions: <Widget>[
                 !_searchBoolean
@@ -164,14 +169,24 @@ class _RecipeAppState extends ConsumerState<RecipeApp> {
                         onPressed: () async {
                           await FirebaseAuth.instance.signInAnonymously();
                         },
-                        child: const Text('Login anonymously'),
+                        child: const Text('Login',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w200,
+                              color: Colors.white,
+                              fontSize: 20,
+                            )),
                       )
                     : TextButton(
                         style: style,
                         onPressed: () async {
                           await FirebaseAuth.instance.signOut();
                         },
-                        child: const Text('Logout'),
+                        child: const Text('Logout',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w200,
+                              color: Colors.white,
+                              fontSize: 20,
+                            )),
                       ),
               ],
               notificationPredicate: (ScrollNotification notification) {
