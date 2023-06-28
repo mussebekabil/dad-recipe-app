@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/recipe.dart';
 import '../providers/category.dart';
 import '../models/category.dart';
+import '../utils/breakpoints.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class RecipeForm extends ConsumerStatefulWidget {
   const RecipeForm({super.key});
@@ -31,7 +33,18 @@ class _RecipeFormState extends ConsumerState<RecipeForm> {
 
   void submit() {
     // First validate form.
-    if (_formKey.currentState!.validate()) {
+    if (_data.ctgId == null ||
+        _data.name == '' ||
+        _data.ingredients == '' ||
+        _data.steps == '') {
+      Fluttertoast.showToast(
+          msg: 'Please fill all the required fields!',
+          toastLength: Toast.LENGTH_LONG,
+          timeInSecForIosWeb: 5,
+          webBgColor: "linear-gradient(to right, #FF0000, #FB9782)",
+          backgroundColor: Colors.red,
+          textColor: Colors.white);
+    } else if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save(); // Save our form now.
 
       ref
@@ -39,6 +52,11 @@ class _RecipeFormState extends ConsumerState<RecipeForm> {
           .addRecipe(_data.ctgId!, _data.name, _data.ingredients, _data.steps);
       _data.reset();
       _formKey.currentState!.reset();
+      Fluttertoast.showToast(
+          msg: 'Recipe created successfully!',
+          toastLength: Toast.LENGTH_LONG,
+          timeInSecForIosWeb: 5,
+          textColor: Colors.white);
     }
   }
 
@@ -59,13 +77,17 @@ class _RecipeFormState extends ConsumerState<RecipeForm> {
     final Size screenSize = MediaQuery.of(context).size;
     AsyncValue<List<Category>> futureCategories =
         ref.watch(categoriesFutureProvider);
+    final container = MediaQuery.of(context).size;
+    double sideMargin = container.width < Breakpoints.md
+        ? container.width * 0.05
+        : container.width * 0.15;
 
     return futureCategories.when(
         loading: () => const CircularProgressIndicator(),
         error: (err, stack) => Text('Error: $err'),
         data: (categories) {
           return Container(
-            padding: const EdgeInsets.all(50.0),
+            padding: EdgeInsets.fromLTRB(sideMargin, 50, sideMargin, 50),
             child: Column(children: [
               const Text("Create recipe",
                   style: TextStyle(
@@ -99,7 +121,7 @@ class _RecipeFormState extends ConsumerState<RecipeForm> {
                         keyboardType: TextInputType.text,
                         decoration: const InputDecoration(
                             hintText: 'Best hamburger ever', labelText: 'Name'),
-                        onSaved: (String? value) {
+                        onChanged: (String? value) {
                           _data.name = value!;
                         }),
                     TextFormField(
@@ -108,7 +130,7 @@ class _RecipeFormState extends ConsumerState<RecipeForm> {
                         maxLines: null,
                         decoration:
                             const InputDecoration(labelText: 'Ingredients'),
-                        onSaved: (String? value) {
+                        onChanged: (String? value) {
                           _data.ingredients = value!;
                         }),
                     TextFormField(
@@ -116,7 +138,7 @@ class _RecipeFormState extends ConsumerState<RecipeForm> {
                         keyboardType: TextInputType.multiline,
                         maxLines: null,
                         decoration: const InputDecoration(labelText: 'Steps'),
-                        onSaved: (String? value) {
+                        onChanged: (String? value) {
                           _data.steps = value!;
                         }),
                     Container(

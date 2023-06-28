@@ -5,9 +5,9 @@ import 'package:collection/collection.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/category.dart';
 import '../providers/category.dart';
-import '../providers/navigation.dart';
 import '../providers/recipe.dart';
 import '../utils/breakpoints.dart';
+import 'recipe.dart';
 
 class RecipesListScreen extends ConsumerStatefulWidget {
   const RecipesListScreen({super.key});
@@ -67,9 +67,10 @@ class _RecipesListState extends ConsumerState<RecipesListScreen> {
               child: ListTile(
                   title: Text(recipe.name),
                   onTap: () {
-                    ref
-                        .read(selectedIndexProvider.notifier)
-                        .setSelectedIndex(4);
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => RecipeScreen(recipe, false)));
                   },
                   hoverColor: Colors.white,
                   trailing: Row(mainAxisSize: MainAxisSize.min, children: [
@@ -90,15 +91,21 @@ class _RecipesListState extends ConsumerState<RecipesListScreen> {
         ref.watch(categoriesFutureProvider);
     AsyncValue<List<Recipe>> futureRecipes = ref.watch(recipesFutureProvider);
     final container = MediaQuery.of(context).size;
-    double sideMargin = container.width < Breakpoints.md ? 20 : 100;
+    double sideMargin = container.width < Breakpoints.md
+        ? container.width * 0.05
+        : container.width * 0.15;
     return futureCategories.when(
-        loading: () => const CircularProgressIndicator(),
+        loading: () => const SizedBox.shrink(),
         error: (err, stack) => Text('Error: $err'),
         data: (categories) {
           final ctg = ref.read(categoryProvider);
           selectedCtgId = ctg == null ? "" : ctg.id;
           return futureRecipes.when(
-              loading: () => const CircularProgressIndicator(),
+              loading: () => const Center(
+                  child: SizedBox(
+                      height: 150,
+                      width: 150,
+                      child: CircularProgressIndicator())),
               error: (err, stack) => Text('Error: $err'),
               data: (recipes) {
                 return Column(

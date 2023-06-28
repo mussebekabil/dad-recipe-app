@@ -15,13 +15,14 @@ class CategoryListScreen extends ConsumerWidget {
     AsyncValue<List<Category>> futureCategories =
         ref.watch(categoriesFutureProvider);
     final container = MediaQuery.of(context).size;
-    final axisCount = container.width < Breakpoints.md
-        ? 1
-        : container.width < Breakpoints.xl
-            ? 2
-            : 3;
+    double sideMargin = container.width < Breakpoints.md
+        ? container.width * 0.05
+        : container.width * 0.15;
+    final axisCount = container.width < Breakpoints.lg ? 1 : 2;
     return futureCategories.when(
-      loading: () => const CircularProgressIndicator(),
+      loading: () => const Center(
+          child: SizedBox(
+              height: 150, width: 150, child: CircularProgressIndicator())),
       error: (err, stack) => Text('Error: $err'),
       data: (categories) {
         return Column(children: <Widget>[
@@ -34,14 +35,20 @@ class CategoryListScreen extends ConsumerWidget {
           const SizedBox(height: 20),
           Expanded(
               child: GridView.builder(
+                  padding: EdgeInsets.fromLTRB(sideMargin, 0, sideMargin, 0),
                   itemCount: categories.length,
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: axisCount,
                   ),
                   itemBuilder: (context, index) {
                     final category = categories[index];
+                    bool evenIndex = index % 2 == 0;
+
                     return Card(
-                        margin: const EdgeInsets.all(50.0),
+                        margin: container.width < Breakpoints.lg
+                            ? const EdgeInsets.fromLTRB(0, 25, 0, 25)
+                            : EdgeInsets.fromLTRB(
+                                evenIndex ? 0 : 25, 25, evenIndex ? 25 : 0, 25),
                         child: InkWell(
                           onTap: () {
                             ref
@@ -49,7 +56,7 @@ class CategoryListScreen extends ConsumerWidget {
                                 .setSelectedCategory(category);
                             ref
                                 .read(selectedIndexProvider.notifier)
-                                .setSelectedIndex(3);
+                                .setSelectedIndex(2);
                           },
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,

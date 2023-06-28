@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 import 'firebase_options.dart';
 import 'widgets/recipe_app.dart';
@@ -20,6 +21,7 @@ main() async {
       ],
       child: MaterialApp(
         home: const RecipeApp(),
+        builder: FToastBuilder(),
         theme: ThemeData(
           colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.deepOrange),
           textTheme: const TextTheme(

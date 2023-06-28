@@ -22,14 +22,13 @@ class RecipeApp extends ConsumerStatefulWidget {
 
 class _RecipeAppState extends ConsumerState<RecipeApp> {
   late bool _searchBoolean = false;
-  static const List<Widget> _widgetOptions = <Widget>[
-    HomeScreen(),
-    RecipeForm(),
-    CategoryListScreen(),
-    RecipesListScreen(),
-    RecipeScreen()
-  ];
 
+  final List<GlobalKey<NavigatorState>> _navigatorKeys = [
+    GlobalKey<NavigatorState>(),
+    GlobalKey<NavigatorState>(),
+    GlobalKey<NavigatorState>(),
+    GlobalKey<NavigatorState>()
+  ];
   Widget _searchTextField() => TextField(
         onChanged: (String s) =>
             ref.watch(searchProvider.notifier).setSearchKeys(s),
@@ -53,6 +52,64 @@ class _RecipeAppState extends ConsumerState<RecipeApp> {
         ),
       );
 
+  List<BottomNavigationBarItem> getBottomItems(User? user) {
+    if (user != null) {
+      return const [
+        BottomNavigationBarItem(
+          icon: Icon(Icons.home),
+          label: 'Home',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.category),
+          label: 'Category',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.ramen_dining),
+          label: 'Recipe list',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.add_circle),
+          label: 'Add recipe',
+        )
+      ];
+    }
+
+    return const [
+      BottomNavigationBarItem(
+        icon: Icon(Icons.home),
+        label: 'Home',
+      ),
+      BottomNavigationBarItem(
+        icon: Icon(Icons.category),
+        label: 'Category',
+      ),
+      BottomNavigationBarItem(
+        icon: Icon(Icons.ramen_dining),
+        label: 'Recipe list',
+      ),
+    ];
+  }
+
+  Stack getBodyContent(User? user) {
+    if (user != null) {
+      return Stack(
+        children: [
+          _buildOffstageNavigator(0),
+          _buildOffstageNavigator(1),
+          _buildOffstageNavigator(2),
+          _buildOffstageNavigator(3),
+        ],
+      );
+    }
+    return Stack(
+      children: [
+        _buildOffstageNavigator(0),
+        _buildOffstageNavigator(1),
+        _buildOffstageNavigator(2),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final selectedIndex = ref.watch(selectedIndexProvider);
@@ -60,113 +117,128 @@ class _RecipeAppState extends ConsumerState<RecipeApp> {
       foregroundColor: Theme.of(context).colorScheme.onPrimary,
     );
     final asyncUser = ref.watch(userProvider);
-    if (selectedIndex != 3) {
+    if (selectedIndex != 2) {
       ref.read(categoryProvider.notifier).setSelectedCategory(null);
       setState(() {
         _searchBoolean = false;
       });
     }
     return asyncUser.when(data: (user) {
-      return Scaffold(
-        appBar: AppBar(
-          title: !_searchBoolean
-              ? const Text('DAD Recipe App')
-              : _searchTextField(),
-          actions: <Widget>[
-            !_searchBoolean
-                ? IconButton(
-                    icon: const Icon(Icons.search),
-                    onPressed: () {
-                      ref
-                          .read(selectedIndexProvider.notifier)
-                          .setSelectedIndex(3);
-                      ref.watch(searchProvider.notifier).setSearchKeys("");
-                      setState(() {
-                        _searchBoolean = true;
-                      });
-                    })
-                : IconButton(
-                    icon: const Icon(Icons.clear),
-                    onPressed: () {
-                      ref.watch(searchProvider.notifier).setSearchKeys("");
-                      setState(() {
-                        _searchBoolean = false;
-                      });
-                    }),
-            user == null
-                ? TextButton(
-                    style: style,
-                    onPressed: () async {
-                      await FirebaseAuth.instance.signInAnonymously();
-                    },
-                    child: const Text('Login anonymously'),
-                  )
-                : TextButton(
-                    style: style,
-                    onPressed: () async {
-                      await FirebaseAuth.instance.signOut();
-                    },
-                    child: const Text('Logout'),
-                  ),
-          ],
-          notificationPredicate: (ScrollNotification notification) {
-            return notification.depth == 1;
+      return WillPopScope(
+          onWillPop: () async {
+            final isFirstRouteInCurrentTab =
+                !await _navigatorKeys[selectedIndex].currentState!.maybePop();
+
+            // let system handle back button if we're on the first route
+            return isFirstRouteInCurrentTab;
           },
-          scrolledUnderElevation: 4.0,
-          shadowColor: Theme.of(context).shadowColor,
-        ),
-        body: RefreshIndicator(
-            onRefresh: () async {
-              ref.refresh(categoryProvider);
-              ref.refresh(categoriesFutureProvider);
-              await ref.read(categoriesFutureProvider.future);
-              ref.refresh(recipesFutureProvider);
-              await ref.read(recipesFutureProvider.future);
-            },
-            child: Column(children: [
-              Expanded(
-                child: Center(child: _widgetOptions.elementAt(selectedIndex)),
-              ),
-              user == null
-                  ? const SizedBox.shrink()
-                  : IconButton(
-                      onPressed: (() {}),
-                      icon: const Icon(Icons.add_circle,
-                          semanticLabel: 'Add new recipe',
-                          size: 40.0,
-                          color: Color.fromRGBO(55, 71, 79, 1))),
-              const SizedBox(height: 20)
-            ])),
-        bottomNavigationBar: BottomNavigationBar(
-          items: const <BottomNavigationBarItem>[
-            BottomNavigationBarItem(
-              icon: Icon(Icons.home),
-              label: 'Home',
+          child: Scaffold(
+            appBar: AppBar(
+              title: !_searchBoolean
+                  ? const Text('DAD Recipe App')
+                  : _searchTextField(),
+              actions: <Widget>[
+                !_searchBoolean
+                    ? IconButton(
+                        icon: const Icon(Icons.search),
+                        onPressed: () {
+                          ref
+                              .read(selectedIndexProvider.notifier)
+                              .setSelectedIndex(2);
+                          ref.watch(searchProvider.notifier).setSearchKeys("");
+                          setState(() {
+                            _searchBoolean = true;
+                          });
+                        })
+                    : IconButton(
+                        icon: const Icon(Icons.clear),
+                        onPressed: () {
+                          ref.watch(searchProvider.notifier).setSearchKeys("");
+                          setState(() {
+                            _searchBoolean = false;
+                          });
+                        }),
+                user == null
+                    ? TextButton(
+                        style: style,
+                        onPressed: () async {
+                          await FirebaseAuth.instance.signInAnonymously();
+                        },
+                        child: const Text('Login anonymously'),
+                      )
+                    : TextButton(
+                        style: style,
+                        onPressed: () async {
+                          await FirebaseAuth.instance.signOut();
+                        },
+                        child: const Text('Logout'),
+                      ),
+              ],
+              notificationPredicate: (ScrollNotification notification) {
+                return notification.depth == 1;
+              },
+              scrolledUnderElevation: 4.0,
+              shadowColor: Theme.of(context).shadowColor,
             ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.ramen_dining),
-              label: 'Recipe',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.category),
-              label: 'Category',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.featured_play_list),
-              label: 'Recipe list',
-            ),
-          ],
-          currentIndex: selectedIndex > 3 ? 0 : selectedIndex,
-          selectedItemColor: Colors.deepOrange,
-          unselectedItemColor: const Color.fromRGBO(55, 71, 79, 1),
-          onTap: (int index) =>
-              ref.read(selectedIndexProvider.notifier).setSelectedIndex(index),
-        ),
-      );
+            body: RefreshIndicator(
+                onRefresh: () async {
+                  ref.refresh(categoryProvider);
+                  ref.refresh(categoriesFutureProvider);
+                  await ref.read(categoriesFutureProvider.future);
+                  ref.refresh(recipesFutureProvider);
+                  await ref.read(recipesFutureProvider.future);
+                },
+                child: Stack(
+                  children: [
+                    _buildOffstageNavigator(0),
+                    _buildOffstageNavigator(1),
+                    _buildOffstageNavigator(2),
+                    _buildOffstageNavigator(3),
+                  ],
+                )),
+            bottomNavigationBar: BottomNavigationBar(
+                items: getBottomItems(user),
+                currentIndex: selectedIndex > 3 ? 0 : selectedIndex,
+                selectedItemColor: Colors.deepOrange,
+                unselectedItemColor: const Color.fromRGBO(55, 71, 79, 1),
+                onTap: (int index) => ref
+                    .read(selectedIndexProvider.notifier)
+                    .setSelectedIndex(index)),
+          ));
     }, error: (error, stackTrace) {
       return const Center(child: Text("Something went wrong.."));
     }, loading: () {
       return const Center(child: CircularProgressIndicator());
     });
+  }
+
+  Map<String, WidgetBuilder> _routeBuilders(BuildContext context, int index) {
+    return {
+      '/': (context) {
+        return const [
+          HomeScreen(),
+          CategoryListScreen(),
+          RecipesListScreen(),
+          RecipeForm(),
+        ].elementAt(index);
+      },
+    };
+  }
+
+  Widget _buildOffstageNavigator(int index) {
+    var routeBuilders = _routeBuilders(context, index);
+    final selectedIndex = ref.watch(selectedIndexProvider);
+
+    return Offstage(
+      offstage: selectedIndex != index,
+      child: Navigator(
+        key: _navigatorKeys[index],
+        onGenerateRoute: (routeSettings) {
+          return MaterialPageRoute(
+            builder: (context) => routeBuilders[routeSettings.name]!(context),
+          );
+        },
+      ),
+    );
   }
 }
